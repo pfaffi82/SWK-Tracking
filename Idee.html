@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SWK">
+<meta name="theme-color" content="#c0392b">
+<title>SWK Tracker</title>
+<link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxODAgMTgwIj48cmVjdCB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgcng9IjQwIiBmaWxsPSIjYzAzOTJiIi8+PHRleHQgeD0iOTAiIHk9IjExNSIgZm9udC1zaXplPSI5MCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+8J+UpTwvdGV4dD48L3N2Zz4=">
+<style>
+:root {
+  --rd: #c0392b; --rdd: #922b21; --rl: #fdf2f0;
+  --gn: #27ae60; --gnd: #1e8449; --gnl: #eafaf1;
+  --or: #e67e22; --orl: #fef9e7;
+  --bg: #f8f4f2; --card: #fff; --text: #2c2c2c; --mu: #888; --bo: #e8e0dc;
+  --st: env(safe-area-inset-top,0px); --sb: env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overscroll-behavior:none}
+body{font-family:-apple-system,Georgia,serif;background:var(--bg);color:var(--text);padding-bottom:calc(82px + var(--sb))}
+
+/* HEADER */
+.hdr{background:linear-gradient(135deg,var(--rdd),var(--rd));padding:calc(14px + var(--st)) 20px 14px;color:#fff;position:sticky;top:0;z-index:50}
+.hdr-lbl{font-size:10px;letter-spacing:3px;text-transform:uppercase;opacity:.65}
+.hdr-row{display:flex;justify-content:space-between;align-items:center;margin-top:2px}
+.hdr-title{font-size:20px;font-weight:800}
+.hdr-sub{font-size:12px;opacity:.75;margin-top:2px}
+.hdr-edit{background:rgba(255,255,255,.18);border:none;color:#fff;border-radius:8px;padding:5px 10px;font-size:12px;cursor:pointer;font-family:-apple-system,serif}
+
+/* TABS */
+.tab-bar{position:fixed;bottom:0;left:0;right:0;background:rgba(255,255,255,.96);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid #e5e5e5;display:flex;padding-bottom:var(--sb);z-index:100}
+.tb{flex:1;background:none;border:none;padding:10px 2px 6px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;color:#bbb;font-family:-apple-system,serif;font-size:9px;font-weight:500}
+.tb .ti{font-size:20px;line-height:1}
+.tb.active{color:var(--rd)}
+.tb.active .ti{transform:scale(1.1)}
+
+.content{max-width:580px;margin:0 auto;padding:14px 14px 0}
+.card{background:var(--card);border-radius:18px;padding:18px;margin-bottom:14px;box-shadow:0 2px 16px rgba(0,0,0,.07)}
+.card-title{font-size:14px;font-weight:700;color:var(--rd);margin-bottom:14px}
+.tab-content{display:none}
+.tab-content.active{display:block}
+
+/* PHASE SELECTOR */
+.phase-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px}
+.phase-btn{padding:12px 6px;border-radius:14px;border:2px solid var(--bo);background:#fff;cursor:pointer;text-align:center;font-family:-apple-system,serif;transition:all .15s}
+.phase-btn.active{border-color:var(--rd);background:var(--rd);color:#fff}
+.phase-btn .pb-icon{font-size:22px;display:block;margin-bottom:4px}
+.phase-btn .pb-name{font-size:12px;font-weight:700;display:block}
+.phase-btn .pb-days{font-size:10px;opacity:.7;display:block;margin-top:2px}
+
+/* PHASE INFO BANNER */
+.phase-banner{border-radius:14px;padding:14px 16px;margin-bottom:14px}
+.phase-banner.schlemmer{background:#fff8e1;border:2px solid #f9c74f}
+.phase-banner.diaet{background:var(--rl);border:2px solid var(--rd)}
+.phase-banner.stabi{background:var(--gnl);border:2px solid var(--gn)}
+.pb-phase-title{font-weight:800;font-size:15px;margin-bottom:6px}
+.pb-rule{font-size:12px;color:#555;line-height:1.6}
+
+/* DAY COUNTER */
+.day-counter{display:flex;align-items:center;justify-content:space-between;background:var(--bg);border-radius:12px;padding:12px 16px;margin-bottom:14px}
+.dc-label{font-size:12px;color:var(--mu)}
+.dc-val{font-size:28px;font-weight:800;color:var(--rd)}
+.dc-btns{display:flex;gap:8px}
+.dc-btn{width:36px;height:36px;border-radius:50%;border:none;font-size:18px;cursor:pointer;background:var(--rd);color:#fff;font-weight:bold;display:flex;align-items:center;justify-content:center}
+.dc-btn.minus{background:#ddd;color:#666}
+
+/* SUPPLEMENTS */
+.supp-section{margin-bottom:14px}
+.supp-time{font-size:11px;font-weight:700;color:var(--mu);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px}
+.supp-item{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f5f0ea}
+.supp-name{font-size:14px;color:var(--text);font-weight:500}
+.supp-detail{font-size:11px;color:var(--mu);margin-top:2px}
+.supp-check{width:28px;height:28px;border-radius:50%;border:2.5px solid #ddd;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;transition:all .2s}
+.supp-check.done{background:var(--gn);border-color:var(--gn);color:#fff}
+
+/* ESSEN TRACKER */
+.inp{width:100%;padding:13px 14px;border:2px solid var(--bo);border-radius:12px;font-size:16px;font-family:-apple-system,serif;outline:none;background:#faf9f7;-webkit-appearance:none}
+.inp:focus{border-color:var(--rd)}
+.inp-row{display:flex;gap:8px;margin-bottom:10px}
+.inp-row .inp{flex:1}
+.add-btn{width:100%;padding:14px;background:linear-gradient(135deg,var(--rd),var(--rdd));color:#fff;border:none;border-radius:12px;font-size:15px;font-family:-apple-system,serif;cursor:pointer;font-weight:700;box-shadow:0 4px 14px rgba(192,57,43,.3)}
+.add-btn:active{opacity:.85;transform:scale(.98)}
+.add-btn:disabled{background:#ddd;color:#aaa;box-shadow:none}
+
+/* ESSEN EINTRAEGE */
+.e-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #f5f0ea}
+.e-name{font-size:13px;color:var(--text);font-weight:500}
+.e-menge{font-size:11px;color:#bbb;margin-top:2px}
+.del-btn{width:30px;height:30px;border-radius:50%;background:#f5f0ea;border:none;cursor:pointer;color:#bbb;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.del-btn:active{background:#fde8e8;color:var(--rd)}
+
+/* LEBENSMITTEL CHECK */
+.check-result{border-radius:14px;padding:16px;margin-bottom:14px;display:none}
+.check-result.visible{display:block}
+.check-result.ok{background:var(--gnl);border:2px solid var(--gn)}
+.check-result.nok{background:var(--rl);border:2px solid var(--rd)}
+.check-result.warn{background:var(--orl);border:2px solid var(--or)}
+.cr-icon{font-size:32px;margin-bottom:6px}
+.cr-title{font-size:16px;font-weight:800;margin-bottom:4px}
+.cr-detail{font-size:13px;line-height:1.5;color:#555}
+
+/* LM LISTE */
+.lm-cat{margin-bottom:16px}
+.lm-cat-title{font-size:12px;font-weight:700;color:var(--rd);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;padding-bottom:4px;border-bottom:2px solid var(--rl)}
+.lm-item{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f5f0ea;font-size:13px}
+.lm-name{color:var(--text);font-weight:500}
+.lm-info{color:var(--mu);font-size:12px}
+
+/* KOERPER */
+.kg-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.kg-box{background:var(--bg);border-radius:14px;padding:14px}
+.kg-icon{font-size:20px;margin-bottom:4px}
+.kg-lbl{font-size:10px;color:#bbb;text-transform:uppercase;letter-spacing:.5px}
+.kg-val{font-size:22px;font-weight:800;color:var(--rd);margin-top:2px}
+.kg-unit{font-size:12px;color:#aaa;font-weight:400}
+.kg-diff{font-size:11px;margin-top:2px;font-weight:600}
+.kg-diff.plus{color:var(--rd)}
+.kg-diff.minus{color:var(--gn)}
+
+/* VERLAUF */
+.v-card{background:#fff;border-radius:14px;padding:14px 16px;margin-bottom:10px;box-shadow:0 2px 8px rgba(0,0,0,.05);cursor:pointer}
+.v-date{font-weight:700;font-size:14px;color:var(--rd)}
+.v-datekey{font-size:11px;color:#ccc}
+.v-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.v-tag{padding:3px 10px;border-radius:99px;font-size:11px;font-weight:600}
+.v-tag.essen{background:var(--rl);color:var(--rd)}
+.v-tag.supp{background:var(--gnl);color:var(--gnd)}
+.v-tag.kg{background:#e8f4fb;color:#1a6a9e}
+
+/* EXPORT */
+.exp-btn{width:100%;padding:14px;background:linear-gradient(135deg,#27639e,#1a4a7a);color:#fff;border:none;border-radius:12px;font-size:15px;font-family:-apple-system,serif;cursor:pointer;font-weight:700;box-shadow:0 4px 14px rgba(26,74,122,.25)}
+.exp-btn:active{opacity:.85}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.stat-box{background:var(--bg);border-radius:12px;padding:14px}
+.stat-lbl{font-size:11px;color:#bbb;margin-bottom:4px}
+.stat-val{font-size:20px;font-weight:800;color:var(--rd)}
+
+/* MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;display:none;align-items:flex-end}
+.modal-bg.visible{display:flex}
+.modal{background:#fff;border-radius:24px 24px 0 0;padding:24px 20px calc(24px + var(--sb));width:100%;max-width:580px;margin:0 auto}
+.modal h3{font-size:18px;font-weight:800;color:var(--rd);margin-bottom:16px}
+.modal-btn{width:100%;padding:14px;background:var(--rd);color:#fff;border:none;border-radius:12px;font-size:15px;font-family:-apple-system,serif;cursor:pointer;font-weight:700;margin-top:10px}
+.modal-cancel{width:100%;padding:12px;background:#f5f0ea;color:#888;border:none;border-radius:12px;font-size:14px;font-family:-apple-system,serif;cursor:pointer;margin-top:8px}
+.field-lbl{font-size:12px;font-weight:700;color:var(--mu);letter-spacing:.5px;margin-bottom:6px;margin-top:12px;display:block}
+
+/* CHART */
+.chart-wrap{width:100%;overflow-x:auto}
+canvas{display:block;max-width:100%}
+
+/* MISC */
+.empty{text-align:center;padding:40px 20px;color:#ccc}
+.empty-icon{font-size:48px;margin-bottom:10px}
+.hint{background:var(--orl);border:1.5px solid #f0d080;border-radius:12px;padding:12px 14px;margin-bottom:14px;font-size:13px;color:#886600;line-height:1.5}
+.badge-ok{display:inline-block;padding:3px 10px;border-radius:99px;background:var(--gnl);color:var(--gnd);font-size:11px;font-weight:700}
+.badge-no{display:inline-block;padding:3px 10px;border-radius:99px;background:var(--rl);color:var(--rd);font-size:11px;font-weight:700}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{padding:8px;text-align:left;color:#bbb;font-size:11px;font-weight:700;background:var(--bg)}
+td{padding:8px;border-bottom:1px solid #f5f0ea;color:var(--text)}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="hdr-lbl">Stoffwechsel Kur</div>
+  <div class="hdr-row">
+    <div class="hdr-title">🔥 SWK Tracker</div>
+    <button class="hdr-edit" onclick="openProfModal()">✏️ Profil</button>
+  </div>
+  <div class="hdr-sub" id="hdr-sub">Lade...</div>
+</div>
+
+<div class="content">
+
+  <!-- ── HEUTE ── -->
+  <div id="tab-heute" class="tab-content active">
+
+    <!-- Phase wählen -->
+    <div class="card">
+      <div class="card-title">📍 Aktuelle Phase</div>
+      <div class="phase-grid">
+        <button class="phase-btn" id="pb-schlemmer" onclick="setPhase('schlemmer')">
+          <span class="pb-icon">🍽️</span>
+          <span class="pb-name">Schlemmer</span>
+          <span class="pb-days">2 Tage</span>
+        </button>
+        <button class="phase-btn" id="pb-diaet" onclick="setPhase('diaet')">
+          <span class="pb-icon">🥗</span>
+          <span class="pb-name">Diätphase</span>
+          <span class="pb-days">21 Tage</span>
+        </button>
+        <button class="phase-btn" id="pb-stabi" onclick="setPhase('stabi')">
+          <span class="pb-icon">⚖️</span>
+          <span class="pb-name">Stabilisierung</span>
+          <span class="pb-days">21 Tage</span>
+        </button>
+      </div>
+
+      <!-- Tag Counter -->
+      <div class="day-counter">
+        <div>
+          <div class="dc-label" id="dc-label">Aktueller Tag</div>
+          <div class="dc-val" id="dc-val">1</div>
+        </div>
+        <div class="dc-btns">
+          <button class="dc-btn minus" onclick="changeDay(-1)">−</button>
+          <button class="dc-btn" onclick="changeDay(1)">+</button>
+        </div>
+      </div>
+
+      <!-- Phase Info -->
+      <div class="phase-banner" id="phase-banner">
+        <div class="pb-phase-title" id="pb-title"></div>
+        <div class="pb-rule" id="pb-rules"></div>
+      </div>
+    </div>
+
+    <!-- Supplements Heute -->
+    <div class="card">
+      <div class="card-title">💊 Supplements & Aktivator</div>
+      <div id="supp-heute"></div>
+    </div>
+
+    <!-- Essen Tracker -->
+    <div class="card">
+      <div class="card-title">🍽️ Gegessenes eintragen</div>
+      <div class="inp-wrap" style="margin-bottom:10px">
+        <input type="text" class="inp" id="essen-input" placeholder="Was hast du gegessen?" autocomplete="off" autocorrect="off">
+      </div>
+      <div class="inp-row">
+        <input type="text" class="inp" id="essen-menge" placeholder="Menge (z.B. 120g)">
+        <input type="text" class="inp" id="essen-mahlzeit" placeholder="Wann (z.B. Mittag)" style="border-color:#ddd">
+      </div>
+      <button class="add-btn" onclick="addEssen()">Eintrag speichern</button>
+    </div>
+
+    <!-- Tages Einträge -->
+    <div id="essen-liste-heute"></div>
+
+  </div>
+
+  <!-- ── LEBENSMITTEL CHECK ── -->
+  <div id="tab-check" class="tab-content">
+    <div class="card">
+      <div class="card-title">🔍 Lebensmittel prüfen</div>
+      <p style="font-size:13px;color:#888;margin-bottom:12px">Gib ein Lebensmittel ein – ich sage dir ob es in deiner aktuellen Phase erlaubt ist.</p>
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <input type="text" class="inp" id="check-input" placeholder="z.B. Karotten, Lachs, Butter..." style="flex:1" autocomplete="off" autocorrect="off">
+        <button onclick="checkLM()" style="padding:13px 18px;background:var(--rd);color:#fff;border:none;border-radius:12px;font-size:15px;cursor:pointer;font-weight:700;white-space:nowrap">Prüfen</button>
+      </div>
+      <p style="font-size:11px;color:#bbb">Phase: <strong id="check-phase-anzeige">–</strong></p>
+    </div>
+    <div class="check-result" id="check-result">
+      <div class="cr-icon" id="cr-icon"></div>
+      <div class="cr-title" id="cr-title"></div>
+      <div class="cr-detail" id="cr-detail"></div>
+    </div>
+    <div class="hint">💡 Tipp: Die Prüfung basiert auf der Finyo SWK Lebensmittelliste. In der Stabilisierungsphase sind mehr Lebensmittel erlaubt.</div>
+  </div>
+
+  <!-- ── LEBENSMITTEL LISTE ── -->
+  <div id="tab-lmliste" class="tab-content">
+    <div class="card" style="padding:14px 16px">
+      <div style="font-size:12px;color:#888;margin-bottom:6px">Erlaubte Lebensmittel für Phase:</div>
+      <div style="display:flex;gap:8px">
+        <button onclick="setLMPhase('diaet')" id="lmp-diaet" style="flex:1;padding:9px;border-radius:10px;border:2px solid var(--bo);background:#fff;font-size:13px;cursor:pointer;font-family:-apple-system,serif;font-weight:700">🥗 Diätphase</button>
+        <button onclick="setLMPhase('stabi')" id="lmp-stabi" style="flex:1;padding:9px;border-radius:10px;border:2px solid var(--bo);background:#fff;font-size:13px;cursor:pointer;font-family:-apple-system,serif;font-weight:700">⚖️ Stabilisierung</button>
+      </div>
+    </div>
+    <div id="lm-liste-content"></div>
+  </div>
+
+  <!-- ── KOERPER ── -->
+  <div id="tab-koerper" class="tab-content">
+    <div class="card">
+      <div class="card-title">📊 Aktuelle Werte</div>
+      <div class="kg-grid" id="kg-aktuell">
+        <div class="kg-box"><div class="kg-icon">⚖️</div><div class="kg-lbl">Gewicht</div><div class="kg-val">–<span class="kg-unit"> kg</span></div></div>
+        <div class="kg-box"><div class="kg-icon">📏</div><div class="kg-lbl">Bauchumfang</div><div class="kg-val">–<span class="kg-unit"> cm</span></div></div>
+        <div class="kg-box"><div class="kg-icon">🎯</div><div class="kg-lbl">Noch zum Ziel</div><div class="kg-val">–<span class="kg-unit"> kg</span></div></div>
+        <div class="kg-box"><div class="kg-icon">📅</div><div class="kg-lbl">Kurstart</div><div class="kg-val" id="kg-start-anzeige" style="font-size:14px">–</div></div>
+      </div>
+      <button class="add-btn" onclick="openKgModal()">➕ Neue Messung eintragen</button>
+    </div>
+    <div class="card">
+      <div class="card-title">📈 Gewichtsverlauf</div>
+      <div class="chart-wrap"><canvas id="kg-chart" height="200"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">📋 Alle Messungen</div>
+      <div id="kg-liste"></div>
+    </div>
+  </div>
+
+  <!-- ── VERLAUF & EXPORT ── -->
+  <div id="tab-verlauf" class="tab-content">
+    <div class="card">
+      <div class="card-title">📊 Statistik</div>
+      <div class="stat-grid" id="stat-grid"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">📤 Export</div>
+      <p style="font-size:13px;color:#777;line-height:1.6;margin-bottom:14px">
+        Exportiert alle Einträge (Essen, Supplements, Körpermessungen) als CSV-Datei.<br>
+        Danach: Dateien-App → per Mail teilen.
+      </p>
+      <button class="exp-btn" onclick="exportCSV()">📥 CSV herunterladen</button>
+      <div style="margin-top:8px;font-size:13px;color:var(--gn);font-weight:700;text-align:center" id="exp-msg"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">🗓 Tagesverlauf</div>
+      <div id="verlauf-liste"></div>
+    </div>
+  </div>
+
+</div><!-- /content -->
+
+<!-- BOTTOM TABS -->
+<div class="tab-bar">
+  <button class="tb active" id="tbtn-heute" onclick="switchTab('heute',this)"><span class="ti">📅</span>Heute</button>
+  <button class="tb" id="tbtn-check" onclick="switchTab('check',this)"><span class="ti">🔍</span>LM Check</button>
+  <button class="tb" id="tbtn-lmliste" onclick="switchTab('lmliste',this)"><span class="ti">📋</span>LM Liste</button>
+  <button class="tb" id="tbtn-koerper" onclick="switchTab('koerper',this)"><span class="ti">⚖️</span>Körper</button>
+  <button class="tb" id="tbtn-verlauf" onclick="switchTab('verlauf',this)"><span class="ti">📊</span>Verlauf</button>
+</div>
+
+<!-- MODAL: PROFIL -->
+<div class="modal-bg" id="prof-modal">
+  <div class="modal">
+    <h3>✏️ Profil</h3>
+    <label class="field-lbl">👤 Dein Name</label>
+    <input type="text" class="inp" id="prof-name" placeholder="z.B. Dietmar">
+    <label class="field-lbl">🎯 Zielgewicht (kg)</label>
+    <input type="number" inputmode="decimal" class="inp" id="prof-ziel" placeholder="z.B. 110">
+    <label class="field-lbl">📅 Kurstart Datum</label>
+    <input type="date" class="inp" id="prof-start">
+    <button class="modal-btn" onclick="saveProfil()">Speichern</button>
+    <button class="modal-cancel" onclick="closeModal('prof-modal')">Abbrechen</button>
+  </div>
+</div>
+
+<!-- MODAL: KÖRPER -->
+<div class="modal-bg" id="kg-modal">
+  <div class="modal">
+    <h3>⚖️ Neue Messung</h3>
+    <label class="field-lbl">⚖️ Gewicht (kg) *</label>
+    <input type="number" inputmode="decimal" class="inp" id="kg-g" placeholder="z.B. 133.5">
+    <label class="field-lbl">📏 Bauchumfang (cm)</label>
+    <input type="number" inputmode="decimal" class="inp" id="kg-b" placeholder="z.B. 118">
+    <label class="field-lbl">💪 Muskelmasse (kg)</label>
+    <input type="number" inputmode="decimal" class="inp" id="kg-m" placeholder="z.B. 65">
+    <label class="field-lbl">💧 Körperwasser (%)</label>
+    <input type="number" inputmode="decimal" class="inp" id="kg-w" placeholder="z.B. 48">
+    <button class="modal-btn" onclick="saveKg()">Speichern</button>
+    <button class="modal-cancel" onclick="closeModal('kg-modal')">Abbrechen</button>
+  </div>
+</div>
+
+<script>
+// ── LEBENSMITTEL DATEN ────────────────────────────────────────────────────────
+const LM_DIAET = {
+  "Fleisch (mager)": [
+    {n:"Hühnerbrust",i:"120g gekocht"},
+    {n:"Putenbrust",i:"120g gekocht"},
+    {n:"Kalbfleisch (mager)",i:"120g"},
+    {n:"Rindfleisch (mager)",i:"120g"},
+    {n:"Rindersteak (mager)",i:"120g"},
+    {n:"Rindertatar",i:"120g"},
+    {n:"Wildfleisch (mager)",i:"120g"},
+  ],
+  "Fisch & Meeresfrüchte": [
+    {n:"Kabeljau",i:"120g"},
+    {n:"Heilbutt",i:"120g"},
+    {n:"Hecht",i:"120g"},
+    {n:"Seezunge",i:"120g"},
+    {n:"Dorade",i:"120g"},
+    {n:"Thunfisch (in Wasser)",i:"120g"},
+    {n:"Garnelen",i:"120g"},
+    {n:"Krabben",i:"120g"},
+    {n:"Hummer",i:"120g"},
+    {n:"Tintenfisch",i:"120g"},
+    {n:"Jakobsmuscheln",i:"120g"},
+  ],
+  "Eiweiß vegetarisch": [
+    {n:"Magertopfen / Magerquark",i:"120g"},
+    {n:"Hüttenkäse (fettarm)",i:"120g"},
+    {n:"Magerjoghurt",i:"120g"},
+    {n:"Eiklar",i:"2 Stück"},
+    {n:"Ei (Omelett: 2 Eiklar + 1 Eigelb)",i:""},
+    {n:"Tofu",i:"120g"},
+    {n:"Harzer Käse",i:"120g"},
+    {n:"Eiweiß-Shake",i:"laut Anleitung"},
+  ],
+  "Gemüse (reichlich)": [
+    {n:"Spinat",i:"beliebig"},
+    {n:"Mangold",i:"beliebig"},
+    {n:"Chicorée",i:"beliebig"},
+    {n:"Fenchel",i:"beliebig"},
+    {n:"Sellerie",i:"beliebig"},
+    {n:"Tomaten",i:"beliebig"},
+    {n:"Gurken",i:"beliebig"},
+    {n:"Paprika",i:"beliebig"},
+    {n:"Zucchini",i:"beliebig"},
+    {n:"Zwiebeln",i:"beliebig"},
+    {n:"Lauch",i:"beliebig"},
+    {n:"Brokkoli",i:"beliebig"},
+    {n:"Blumenkohl",i:"beliebig"},
+    {n:"Rotkohl / Weißkohl",i:"beliebig"},
+    {n:"Rosenkohl",i:"beliebig"},
+    {n:"Radieschen",i:"beliebig"},
+    {n:"Spargel (grün)",i:"beliebig"},
+    {n:"Champignons / Pilze",i:"beliebig"},
+    {n:"Artischocken",i:"beliebig"},
+    {n:"Pak Choi",i:"beliebig"},
+    {n:"Kohlrabi",i:"beliebig"},
+    {n:"Aubergine",i:"beliebig"},
+  ],
+  "Salat": [
+    {n:"Eisbergsalat",i:"beliebig"},
+    {n:"Kopfsalat",i:"beliebig"},
+    {n:"Rucola",i:"beliebig"},
+    {n:"Mangold",i:"beliebig"},
+    {n:"Endivie",i:"beliebig"},
+    {n:"Radicchio",i:"beliebig"},
+  ],
+  "Obst (max. 150g/Tag)": [
+    {n:"Apfel (säuerlich)",i:"max. 1 Stück"},
+    {n:"Grapefruit",i:"max. 1 Stück"},
+    {n:"Orange",i:"max. 1 Stück"},
+    {n:"Erdbeeren",i:"1 Handvoll"},
+    {n:"Heidelbeeren",i:"1 Handvoll"},
+    {n:"Rote Johannisbeeren",i:"1 Handvoll"},
+  ],
+  "Gewürze & Saucen": [
+    {n:"Apfelessig",i:""},
+    {n:"Aceto Balsamico (zuckerfrei)",i:""},
+    {n:"Zitronensaft",i:""},
+    {n:"Dijon-Senf (zuckerfrei)",i:""},
+    {n:"Gemüsebrühe (ohne Salz/Zucker)",i:""},
+    {n:"Soja-Sauce",i:""},
+    {n:"Tabasco",i:""},
+    {n:"Sambal Oelek (zuckerfrei)",i:""},
+    {n:"Tomatenmark (zuckerfrei)",i:""},
+    {n:"Chili, Knoblauch, Ingwer",i:""},
+    {n:"Curry, Cumin, Kurkuma",i:""},
+    {n:"Alle frischen Kräuter",i:""},
+    {n:"Stevia / Erythritol",i:"als Süßungsmittel"},
+  ],
+  "Getränke": [
+    {n:"Wasser (still)",i:"mind. 2 Liter/Tag"},
+    {n:"Kaffee (schwarz)",i:"max. 2 Tassen, 1 TL Magermilch erlaubt"},
+    {n:"Grüner Tee",i:""},
+    {n:"Schwarzer Tee",i:""},
+    {n:"Kräutertee",i:""},
+    {n:"Matetee",i:""},
+  ],
+  "Snacks": [
+    {n:"Grissini",i:"1-2 Stangen (vor 19 Uhr)"},
+    {n:"Knäckebrot",i:"1-2 Scheiben"},
+  ],
+};
+
+const LM_STABI_ZUSATZ = {
+  "Neu erlaubt in Stabilisierung": [
+    {n:"Avocado",i:""},
+    {n:"Olivenöl",i:"in Maßen"},
+    {n:"Alle Käsesorten",i:""},
+    {n:"Milchprodukte",i:"ohne Mengenangabe"},
+    {n:"Hülsenfrüchte",i:"Linsen, Bohnen, Erbsen"},
+    {n:"Alle Gemüsesorten",i:"auch Hülsenfrüchte"},
+    {n:"Alle Obstsorten",i:"abends kein Obst"},
+    {n:"Vollkornbrot",i:"in Maßen"},
+    {n:"Porridge / Haferflocken",i:"zum Frühstück"},
+    {n:"Rotwein / Bier",i:"gelegentlich, in Maßen"},
+    {n:"Magerer Schinken",i:""},
+    {n:"Gute Fette (Nüsse, Samen)",i:""},
+  ],
+  "Weiterhin VERBOTEN in Stabilisierung": [
+    {n:"Zucker",i:"❌"},
+    {n:"Weißmehlprodukte",i:"❌ Kuchen, Kekse"},
+    {n:"Nudeln / Weißbrot / Reis",i:"❌"},
+    {n:"Kartoffeln",i:"❌"},
+    {n:"Mais",i:"❌"},
+    {n:"Verarbeitete Lebensmittel",i:"❌"},
+  ],
+};
+
+// Nicht erlaubt in Diätphase
+const VERBOTEN_DIAET = [
+  "öl","butter","fett","sahne","milch","käse","joghurt","quark","mayo",
+  "nudeln","pasta","reis","kartoffel","brot","mehl","kohlenhydrat",
+  "zucker","süßigkeit","schokolade","kuchen","keks","süssstoff","aspartam",
+  "alkohol","wein","bier","schnaps","saft","limonade","cola",
+  "avocado","nüsse","mandeln","walnuss","cashew","erdnuss",
+  "banane","weintraube","ananas","pfirsich","kirsche","mango","feige","rosine",
+  "schweinefleisch","wurst","schinken","speck","lachs","aal","hering",
+  "karotten","möhren","mais","erbsen","bohnen","linsen","hülsenfrüchte",
+  "dose","fertig","tiefkühl",
+];
+
+const ERLAUBT_DIAET_KEYS = [
+  "hühner","puten","kalb","rind","wild","kabeljau","heilbutt","hecht","seezunge",
+  "dorade","thunfisch","garnelen","krabben","hummer","tintenfisch","jakobs",
+  "topfen","quark","hüttenkäse","magerjoghurt","eiklar","eiweiß","tofu","harzer",
+  "spinat","mangold","chicorée","fenchel","sellerie","tomate","gurke","paprika",
+  "zucchini","zwiebel","lauch","brokkoli","blumenkohl","rotkohl","weißkohl",
+  "rosenkohl","radieschen","spargel","champignon","pilze","artischocke","kohlrabi","aubergine",
+  "eisberg","kopfsalat","rucola","endivie","radicchio",
+  "apfel","grapefruit","orange","erdbeere","heidelbeere","johannisbeere",
+  "wasser","kaffee","tee","grissini","knäckebrot",
+  "zitrone","essig","senf","tabasco","chili","knoblauch","ingwer","curry","stevia","erythritol",
+];
+
+function checkLMStatus(input, phase) {
+  const low = input.toLowerCase().trim();
+  if (!low) return null;
+
+  if (phase === 'schlemmer') {
+    return { status: 'ok', icon: '✅', title: 'In der Schlemmertage erlaubt!', detail: 'In der Schlemmertage darfst du alles essen – je fettreicher desto besser! Das ist wichtig für den Start der Kur.' };
+  }
+
+  // Check verboten
+  const isVerboten = VERBOTEN_DIAET.some(v => low.includes(v));
+  const isErlaubt = ERLAUBT_DIAET_KEYS.some(e => low.includes(e) || e.includes(low));
+
+  if (phase === 'diaet') {
+    if (isVerboten && !isErlaubt) return { status: 'nok', icon: '❌', title: 'Nicht erlaubt in der Diätphase', detail: 'Dieses Lebensmittel ist in der Diätphase nicht erlaubt. Halte dich strikt an die erlaubte Lebensmittelliste für maximalen Erfolg.' };
+    if (isErlaubt) return { status: 'ok', icon: '✅', title: 'Erlaubt in der Diätphase!', detail: 'Dieses Lebensmittel steht auf der Finyo Erlaubt-Liste. Achte auf die empfohlene Menge (Protein max. 120g pro Mahlzeit).' };
+    return { status: 'warn', icon: '⚠️', title: 'Nicht eindeutig – bitte prüfen', detail: 'Dieses Lebensmittel konnte nicht eindeutig zugeordnet werden. Prüfe es in der Lebensmittelliste oder frag deinen Finyo-Berater.' };
+  }
+
+  if (phase === 'stabi') {
+    const stabi_verboten = ['zucker','weißmehl','weißbrot','nudeln','reis','kartoffel','mais','schokolade','kuchen','keks','süßigkeit'];
+    const isStabiVerboten = stabi_verboten.some(v => low.includes(v));
+    if (isStabiVerboten) return { status: 'nok', icon: '❌', title: 'Noch nicht erlaubt in Stabilisierung', detail: 'Zucker, Weißmehlprodukte, Nudeln, Reis, Kartoffeln und Mais sind auch in der Stabilisierungsphase weiterhin verboten.' };
+    return { status: 'ok', icon: '✅', title: 'Erlaubt in der Stabilisierungsphase!', detail: 'In der Stabilisierung sind wieder viele Lebensmittel erlaubt. Steigere die Kalorienmenge langsam von 500 auf 1000 kcal.' };
+  }
+}
+
+// ── SUPPLEMENTS ──────────────────────────────────────────────────────────────
+const SUPPS = {
+  schlemmer: {
+    morgens: [{n:"Aktivator-Salz",d:"5-7x täglich, 20 Min. vor dem Essen"},{n:"Vitalstoffe",d:"Daily Plus + Eiweiß-Shake"}],
+    mittags:  [{n:"Aktivator-Salz",d:"5-7 Einheiten"}],
+    abends:   [{n:"Aktivator-Salz",d:"5-7 Einheiten"},{n:"Vitalstoffe",d:"wie morgens"}],
+    nachts:   [],
+  },
+  diaet: {
+    morgens: [
+      {n:"Aktivator-Salz",d:"5-7 Einheiten, 20 Min. vor Frühstück"},
+      {n:"Daily Plus + Eiweiß-Shake",d:"2 Messlöffel Daily + 1 Löffel Eiweiß mit Wasser"},
+      {n:"OmeGold",d:"1 Kapsel"},
+      {n:"MSM Plus",d:"4 Presslinge"},
+      {n:"Proanthenols",d:"2 Presslinge"},
+    ],
+    mittags: [
+      {n:"Aktivator-Salz",d:"5-7 Einheiten, 20 Min. vor Mittagessen"},
+      {n:"MSM Plus",d:"4 Presslinge"},
+    ],
+    abends: [
+      {n:"Aktivator-Salz",d:"5-7 Einheiten, 20 Min. vor Abendessen"},
+      {n:"MSM Plus",d:"4 Presslinge"},
+      {n:"OmeGold",d:"1 Kapsel"},
+    ],
+    nachts: [
+      {n:"Aktivator-Salz",d:"5-7 Einheiten, 15 Min. vor Schlaf"},
+      {n:"Eiweiß-Shake",d:"1 Löffel mit Wasser"},
+    ],
+  },
+  stabi: {
+    morgens: [
+      {n:"Daily Plus + Eiweiß-Shake",d:"2 Messlöffel Daily + 1 Löffel Eiweiß (z.B. im Smoothie)"},
+      {n:"Proanthenols",d:"2 Presslinge (weiterhin empfohlen)"},
+    ],
+    mittags: [],
+    abends:  [],
+    nachts:  [],
+  },
+};
+
+const SUPP_ZEITEN = ['morgens','mittags','abends','nachts'];
+const SUPP_ICONS = {morgens:'☀️',mittags:'🌤️',abends:'🌙',nachts:'⭐'};
+const SUPP_LABELS = {morgens:'Morgens',mittags:'Mittags',abends:'Abends',nachts:'Nachts'};
+
+// ── PHASE INFO ───────────────────────────────────────────────────────────────
+const PHASE_INFO = {
+  schlemmer: {
+    cls: 'schlemmer',
+    title: '🍽️ Schlemmertage – Essen ohne Reue!',
+    rules: '✅ So viel essen wie möglich – je fetter desto besser!\n✅ Nüsse, Avocado, Lachs, Olivenöl, Sahne, Kuchen – alles erlaubt\n✅ Aktivator-Salz bereits von Beginn an einnehmen\n✅ Vitalstoffe täglich einnehmen\n⚠️ Diese Phase ist wichtig – nicht überspringen!',
+    max: 2,
+  },
+  diaet: {
+    cls: 'diaet',
+    title: '🥗 Diätphase – Strikte Ernährung',
+    rules: '✅ 2x täglich 120g Protein (Fleisch, Fisch, Ei, Topfen, Tofu)\n✅ Reichlich Gemüse und Salat\n✅ Max. 150g Obst/Tag (2 Sorten – nicht abends)\n✅ Mind. 2 Liter Wasser täglich\n❌ Kein Fett, Öl, Butter\n❌ Keine Kohlenhydrate (Brot, Reis, Nudeln)\n❌ Kein Zucker, kein Alkohol\n⚠️ Aktivator-Salz + Supplements täglich!',
+    max: 42,
+  },
+  stabi: {
+    cls: 'stabi',
+    title: '⚖️ Stabilisierungsphase – Neuer Set-Point',
+    rules: '✅ Kein Aktivator-Salz mehr\n✅ Vitalstoffe weiterführen\n✅ Kalorien langsam steigern: 500 → 800 → 1000 kcal\n✅ Gute Fette wieder erlaubt (Avocado, Olivenöl)\n✅ Milchprodukte und alle Gemüse wieder erlaubt\n❌ Noch kein Zucker, Weißmehl, Nudeln, Reis, Kartoffeln\n⚠️ Täglich wiegen – max. +1 kg Schwankung',
+    max: 21,
+  },
+};
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let phase = 'diaet', currentDay = 1, lmPhase = 'diaet';
+let profil = {name:'Dietmar', ziel:110, start:''};
+let essen = {}, suppChecks = {}, koerper = [];
+
+function todayKey(){ return new Date().toISOString().split('T')[0]; }
+function load(){
+  try{ phase=localStorage.getItem('swk_phase')||'diaet'; }catch{}
+  try{ currentDay=parseInt(localStorage.getItem('swk_day')||'1'); }catch{}
+  try{ profil=JSON.parse(localStorage.getItem('swk_profil')||'{"name":"Dietmar","ziel":110,"start":""}'); }catch{}
+  try{ essen=JSON.parse(localStorage.getItem('swk_essen')||'{}'); }catch{}
+  try{ suppChecks=JSON.parse(localStorage.getItem('swk_supp')||'{}'); }catch{}
+  try{ koerper=JSON.parse(localStorage.getItem('swk_koerper')||'[]'); }catch{}
+}
+function save(){
+  localStorage.setItem('swk_phase',phase);
+  localStorage.setItem('swk_day',String(currentDay));
+  localStorage.setItem('swk_profil',JSON.stringify(profil));
+  localStorage.setItem('swk_essen',JSON.stringify(essen));
+  localStorage.setItem('swk_supp',JSON.stringify(suppChecks));
+  localStorage.setItem('swk_koerper',JSON.stringify(koerper));
+}
+
+function getLabel(d){
+  const t=todayKey(), y=new Date(); y.setDate(y.getDate()-1);
+  const yk=y.toISOString().split('T')[0];
+  if(d===t)return'Heute'; if(d===yk)return'Gestern';
+  return new Date(d).toLocaleDateString('de-AT',{weekday:'short',day:'2-digit',month:'2-digit'});
+}
+
+// ── TABS ──────────────────────────────────────────────────────────────────────
+function switchTab(tab, btn){
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tb').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  btn.classList.add('active');
+  if(tab==='lmliste') renderLMListe();
+  if(tab==='koerper') renderKoerper();
+  if(tab==='verlauf') renderVerlauf();
+  if(tab==='check') updateCheckPhase();
+  window.scrollTo(0,0);
+}
+
+// ── PHASE ─────────────────────────────────────────────────────────────────────
+function setPhase(p){
+  phase=p; currentDay=1; save(); renderHeute(); updateHeader();
+}
+function changeDay(d){
+  const info=PHASE_INFO[phase];
+  currentDay=Math.max(1,Math.min(info.max, currentDay+d));
+  save(); renderHeute();
+}
+function updateHeader(){
+  const info=PHASE_INFO[phase];
+  const phaseNames={schlemmer:'Schlemmertage',diaet:'Diätphase',stabi:'Stabilisierung'};
+  document.getElementById('hdr-sub').textContent=`${profil.name||'SWK'} · ${phaseNames[phase]} · Tag ${currentDay}`;
+}
+
+// ── RENDER HEUTE ──────────────────────────────────────────────────────────────
+function renderHeute(){
+  // Phase buttons
+  ['schlemmer','diaet','stabi'].forEach(p=>{
+    document.getElementById('pb-'+p).className='phase-btn'+(p===phase?' active':'');
+  });
+  // Day counter
+  const info=PHASE_INFO[phase];
+  document.getElementById('dc-label').textContent=`Tag (max. ${info.max})`;
+  document.getElementById('dc-val').textContent=currentDay;
+  // Banner
+  const banner=document.getElementById('phase-banner');
+  banner.className='phase-banner '+info.cls;
+  document.getElementById('pb-title').textContent=info.title;
+  document.getElementById('pb-rules').textContent=info.rules;
+  // Supplements
+  renderSuppHeute();
+  // Essen
+  renderEssenHeute();
+  updateHeader();
+}
+
+function renderSuppHeute(){
+  const heute=todayKey();
+  const suppData=SUPPS[phase];
+  let html='';
+  SUPP_ZEITEN.forEach(zeit=>{
+    const items=suppData[zeit]||[];
+    if(!items.length) return;
+    html+=`<div class="supp-section">
+      <div class="supp-time">${SUPP_ICONS[zeit]} ${SUPP_LABELS[zeit]}</div>`;
+    items.forEach((s,i)=>{
+      const key=`${heute}_${zeit}_${i}`;
+      const done=(suppChecks[key]===true);
+      html+=`<div class="supp-item">
+        <div>
+          <div class="supp-name">${s.n}</div>
+          ${s.d?`<div class="supp-detail">${s.d}</div>`:''}
+        </div>
+        <button class="supp-check${done?' done':''}" onclick="toggleSupp('${key}')">${done?'✓':''}</button>
+      </div>`;
+    });
+    html+='</div>';
+  });
+  document.getElementById('supp-heute').innerHTML=html||'<p style="color:#ccc;font-size:13px">Keine Supplements für diese Phase</p>';
+}
+
+function toggleSupp(key){
+  suppChecks[key]=!suppChecks[key]; save(); renderSuppHeute();
+}
+
+// ── ESSEN ──────────────────────────────────────────────────────────────────────
+function addEssen(){
+  const lm=document.getElementById('essen-input').value.trim();
+  const menge=document.getElementById('essen-menge').value.trim();
+  const mahlzeit=document.getElementById('essen-mahlzeit').value.trim()||'–';
+  if(!lm) return;
+  const heute=todayKey();
+  if(!essen[heute]) essen[heute]=[];
+  essen[heute].push({id:Date.now(),lm,menge,mahlzeit,phase,tag:currentDay});
+  save();
+  document.getElementById('essen-input').value='';
+  document.getElementById('essen-menge').value='';
+  document.getElementById('essen-mahlzeit').value='';
+  renderEssenHeute();
+}
+function delEssen(id){
+  const heute=todayKey();
+  if(!essen[heute]) return;
+  essen[heute]=essen[heute].filter(e=>e.id!==id);
+  save(); renderEssenHeute();
+}
+function renderEssenHeute(){
+  const heute=todayKey();
+  const items=essen[heute]||[];
+  const wrap=document.getElementById('essen-liste-heute');
+  if(!items.length){ wrap.innerHTML=''; return; }
+  wrap.innerHTML=`<div class="card"><div class="card-title">🍽️ Heutige Einträge</div>
+    ${items.map(e=>`<div class="e-row">
+      <div style="flex:1">
+        <div class="e-name">${e.lm}</div>
+        <div class="e-menge">${e.menge?e.menge+' · ':''}<span style="color:#c0392b">${e.mahlzeit}</span></div>
+      </div>
+      <button class="del-btn" onclick="delEssen(${e.id})">✕</button>
+    </div>`).join('')}
+  </div>`;
+}
+
+// ── LM CHECK ─────────────────────────────────────────────────────────────────
+function updateCheckPhase(){
+  const names={schlemmer:'Schlemmertage',diaet:'Diätphase',stabi:'Stabilisierung'};
+  document.getElementById('check-phase-anzeige').textContent=names[phase]||'–';
+}
+function checkLM(){
+  const input=document.getElementById('check-input').value.trim();
+  if(!input) return;
+  const res=checkLMStatus(input, phase);
+  if(!res) return;
+  const div=document.getElementById('check-result');
+  div.className='check-result visible '+res.status;
+  document.getElementById('cr-icon').textContent=res.icon;
+  document.getElementById('cr-title').textContent=res.title;
+  document.getElementById('cr-detail').textContent=res.detail;
+}
+
+// ── LM LISTE ─────────────────────────────────────────────────────────────────
+function setLMPhase(p){
+  lmPhase=p;
+  document.getElementById('lmp-diaet').style.background=p==='diaet'?'var(--rd)':'#fff';
+  document.getElementById('lmp-diaet').style.color=p==='diaet'?'#fff':'var(--text)';
+  document.getElementById('lmp-diaet').style.borderColor=p==='diaet'?'var(--rd)':'var(--bo)';
+  document.getElementById('lmp-stabi').style.background=p==='stabi'?'var(--gn)':'#fff';
+  document.getElementById('lmp-stabi').style.color=p==='stabi'?'#fff':'var(--text)';
+  document.getElementById('lmp-stabi').style.borderColor=p==='stabi'?'var(--gn)':'var(--bo)';
+  renderLMListe();
+}
+function renderLMListe(){
+  const data=lmPhase==='stabi'?{...LM_DIAET,...LM_STABI_ZUSATZ}:LM_DIAET;
+  const wrap=document.getElementById('lm-liste-content');
+  wrap.innerHTML=Object.entries(data).map(([cat,items])=>`
+    <div class="card">
+      <div class="lm-cat-title">${cat}</div>
+      ${items.map(i=>`<div class="lm-item">
+        <span class="lm-name">${i.n}</span>
+        ${i.i?`<span class="lm-info">${i.i}</span>`:''}
+      </div>`).join('')}
+    </div>`).join('');
+}
+
+// ── KÖRPER ────────────────────────────────────────────────────────────────────
+function openKgModal(){
+  ['kg-g','kg-b','kg-m','kg-w'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('kg-modal').classList.add('visible');
+}
+function saveKg(){
+  const g=parseFloat(document.getElementById('kg-g').value);
+  if(!g){alert('Gewicht ist Pflichtfeld!');return;}
+  koerper.push({
+    id:Date.now(), datum:todayKey(),
+    gewicht:g,
+    bauch:parseFloat(document.getElementById('kg-b').value)||null,
+    muskel:parseFloat(document.getElementById('kg-m').value)||null,
+    wasser:parseFloat(document.getElementById('kg-w').value)||null,
+  });
+  koerper.sort((a,b)=>a.datum.localeCompare(b.datum));
+  save(); closeModal('kg-modal'); renderKoerper();
+}
+function delKg(id){
+  if(!confirm('Messung löschen?'))return;
+  koerper=koerper.filter(e=>e.id!==id); save(); renderKoerper();
+}
+function renderKoerper(){
+  const last=koerper.length?koerper[koerper.length-1]:null;
+  const prev=koerper.length>1?koerper[koerper.length-2]:null;
+  const diff=(field)=>{
+    if(!last||last[field]==null||!prev||prev[field]==null)return'';
+    const d=(last[field]-prev[field]).toFixed(1);
+    const cl=parseFloat(d)>0?'plus':'minus';
+    const sym=parseFloat(d)>0?'▲':'▼';
+    return`<div class="kg-diff ${cl}">${sym} ${Math.abs(d)}</div>`;
+  };
+  const zielRest=last&&profil.ziel?((last.gewicht-profil.ziel).toFixed(1)):null;
+  document.getElementById('kg-aktuell').innerHTML=`
+    <div class="kg-box"><div class="kg-icon">⚖️</div><div class="kg-lbl">Gewicht</div>
+      <div class="kg-val">${last?last.gewicht:'–'}<span class="kg-unit"> kg</span></div>${diff('gewicht')}</div>
+    <div class="kg-box"><div class="kg-icon">📏</div><div class="kg-lbl">Bauchumfang</div>
+      <div class="kg-val">${last&&last.bauch!=null?last.bauch:'–'}<span class="kg-unit"> cm</span></div>${diff('bauch')}</div>
+    <div class="kg-box"><div class="kg-icon">🎯</div><div class="kg-lbl">Noch zum Ziel</div>
+      <div class="kg-val" style="color:${zielRest&&parseFloat(zielRest)>0?'var(--rd)':'var(--gn)'}">${zielRest!=null?(parseFloat(zielRest)>0?'+'+zielRest:zielRest):'–'}<span class="kg-unit"> kg</span></div></div>
+    <div class="kg-box"><div class="kg-icon">📅</div><div class="kg-lbl">Kurstart</div>
+      <div class="kg-val" style="font-size:13px">${profil.start||'–'}</div></div>`;
+
+  // Liste
+  const liste=document.getElementById('kg-liste');
+  if(!koerper.length){ liste.innerHTML=`<div class="empty"><div class="empty-icon">⚖️</div>Noch keine Messungen</div>`; }
+  else {
+    liste.innerHTML=[...koerper].reverse().map(e=>`
+      <div style="padding:10px 0;border-bottom:1px solid #f5f0ea">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <div><div style="font-weight:700;font-size:14px;color:var(--rd)">${getLabel(e.datum)}</div>
+            <div style="font-size:11px;color:#ccc">${e.datum}</div></div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="font-weight:800;font-size:18px;color:var(--rd)">${e.gewicht} kg</span>
+            <button class="del-btn" onclick="delKg(${e.id})">✕</button>
+          </div>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px">
+          ${e.bauch!=null?`<span style="background:var(--rl);color:var(--rd);padding:3px 10px;border-radius:99px;font-size:12px;font-weight:600">📏 ${e.bauch} cm</span>`:''}
+          ${e.muskel!=null?`<span style="background:var(--gnl);color:var(--gnd);padding:3px 10px;border-radius:99px;font-size:12px;font-weight:600">💪 ${e.muskel} kg</span>`:''}
+          ${e.wasser!=null?`<span style="background:#e8f4fb;color:#1a6a9e;padding:3px 10px;border-radius:99px;font-size:12px;font-weight:600">💧 ${e.wasser} %</span>`:''}
+        </div>
+      </div>`).join('');
+  }
+  drawChart();
+}
+
+function drawChart(){
+  const canvas=document.getElementById('kg-chart');
+  const ctx=canvas.getContext('2d');
+  const W=canvas.parentElement.clientWidth||340;
+  canvas.width=W; canvas.height=200;
+  ctx.clearRect(0,0,W,200);
+  if(koerper.length<2){
+    ctx.fillStyle='#ccc'; ctx.font='14px -apple-system,serif';
+    ctx.textAlign='center'; ctx.fillText('Mindestens 2 Messungen für Chart',W/2,100); return;
+  }
+  const vals=koerper.map(e=>e.gewicht);
+  const min=Math.floor(Math.min(...vals)-2), max=Math.ceil(Math.max(...vals)+2);
+  const pad={t:20,r:20,b:40,l:50};
+  const cW=W-pad.l-pad.r, cH=200-pad.t-pad.b;
+  ctx.strokeStyle='#f0ece6'; ctx.lineWidth=1;
+  for(let i=0;i<=4;i++){
+    const y=pad.t+cH*(1-i/4);
+    ctx.beginPath(); ctx.moveTo(pad.l,y); ctx.lineTo(pad.l+cW,y); ctx.stroke();
+    ctx.fillStyle='#bbb'; ctx.font='11px -apple-system'; ctx.textAlign='right';
+    ctx.fillText((min+(max-min)*i/4).toFixed(1),pad.l-6,y+4);
+  }
+  if(profil.ziel>=min&&profil.ziel<=max){
+    const zy=pad.t+cH*(1-(profil.ziel-min)/(max-min));
+    ctx.strokeStyle='#27ae6040'; ctx.lineWidth=2; ctx.setLineDash([6,4]);
+    ctx.beginPath(); ctx.moveTo(pad.l,zy); ctx.lineTo(pad.l+cW,zy); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle='#27ae60'; ctx.font='10px -apple-system'; ctx.textAlign='left';
+    ctx.fillText('Ziel: '+profil.ziel+' kg',pad.l+4,zy-4);
+  }
+  ctx.strokeStyle='#c0392b'; ctx.lineWidth=2.5; ctx.setLineDash([]);
+  ctx.beginPath();
+  koerper.forEach((e,i)=>{
+    const x=pad.l+cW*(i/(koerper.length-1));
+    const y=pad.t+cH*(1-(e.gewicht-min)/(max-min));
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  }); ctx.stroke();
+  const grad=ctx.createLinearGradient(0,pad.t,0,pad.t+cH);
+  grad.addColorStop(0,'rgba(192,57,43,0.18)'); grad.addColorStop(1,'rgba(192,57,43,0)');
+  ctx.beginPath();
+  koerper.forEach((e,i)=>{
+    const x=pad.l+cW*(i/(koerper.length-1));
+    const y=pad.t+cH*(1-(e.gewicht-min)/(max-min));
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  });
+  ctx.lineTo(pad.l+cW,pad.t+cH); ctx.lineTo(pad.l,pad.t+cH); ctx.closePath();
+  ctx.fillStyle=grad; ctx.fill();
+  koerper.forEach((e,i)=>{
+    const x=pad.l+cW*(i/(koerper.length-1));
+    const y=pad.t+cH*(1-(e.gewicht-min)/(max-min));
+    ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(x,y,5,0,Math.PI*2); ctx.fill();
+    ctx.strokeStyle='#c0392b'; ctx.lineWidth=2; ctx.stroke();
+    if(koerper.length<=7||i%Math.ceil(koerper.length/7)===0){
+      ctx.fillStyle='#aaa'; ctx.font='10px -apple-system'; ctx.textAlign='center';
+      const d=new Date(e.datum);
+      ctx.fillText(`${d.getDate()}.${d.getMonth()+1}`,x,200-pad.b+14);
+    }
+  });
+}
+
+// ── VERLAUF & EXPORT ──────────────────────────────────────────────────────────
+function renderVerlauf(){
+  const allDates=[...new Set([...Object.keys(essen)])].sort().reverse().slice(0,14);
+  const total_essen=Object.values(essen).flat().length;
+  const total_supp=Object.keys(suppChecks).filter(k=>suppChecks[k]).length;
+  const lastKg=koerper.length?koerper[koerper.length-1]:null;
+  document.getElementById('stat-grid').innerHTML=[
+    ['🗓 Tage erfasst', allDates.length],
+    ['🍽️ Essen-Einträge', total_essen],
+    ['💊 Supplements ✓', total_supp],
+    ['⚖️ Gewicht', lastKg?lastKg.gewicht+' kg':'–'],
+  ].map(([l,v])=>`<div class="stat-box"><div class="stat-lbl">${l}</div><div class="stat-val">${v}</div></div>`).join('');
+
+  const wrap=document.getElementById('verlauf-liste');
+  if(!allDates.length){ wrap.innerHTML=`<div class="empty"><div class="empty-icon">📋</div>Noch keine Einträge</div>`; return; }
+  wrap.innerHTML=allDates.map(dk=>{
+    const essenItems=essen[dk]||[];
+    const suppItems=Object.keys(suppChecks).filter(k=>k.startsWith(dk)&&suppChecks[k]).length;
+    const kgItem=koerper.find(k=>k.datum===dk);
+    return`<div class="v-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <div><div class="v-date">${getLabel(dk)}</div><div class="v-datekey">${dk}</div></div>
+      </div>
+      <div class="v-tags">
+        ${essenItems.length?`<span class="v-tag essen">🍽️ ${essenItems.length} Einträge</span>`:''}
+        ${suppItems?`<span class="v-tag supp">💊 ${suppItems} Supplements</span>`:''}
+        ${kgItem?`<span class="v-tag kg">⚖️ ${kgItem.gewicht} kg</span>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function exportCSV(){
+  const rows=[['=== ESSEN ==='],['Datum','Phase','Tag','Mahlzeit','Lebensmittel','Menge']];
+  Object.keys(essen).sort().forEach(date=>{
+    (essen[date]||[]).forEach(e=>rows.push([date,e.phase||'',e.tag||'',e.mahlzeit,e.lm,e.menge]));
+  });
+  rows.push([],['=== SUPPLEMENTS ==='],['Datum','Zeitpunkt','Supplement','Genommen']);
+  Object.keys(suppChecks).sort().forEach(key=>{
+    const parts=key.split('_');
+    if(parts.length>=3) rows.push([parts[0],parts[1],parts.slice(2).join('_'),suppChecks[key]?'Ja':'Nein']);
+  });
+  rows.push([],['=== KÖRPERMESSUNGEN ==='],['Datum','Gewicht','Bauchumfang','Muskelmasse','Körperwasser']);
+  koerper.forEach(e=>rows.push([e.datum,e.gewicht,e.bauch??'',e.muskel??'',e.wasser??'']));
+  const csv='\uFEFF'+rows.map(r=>r.map(c=>`"${c}"`).join(';')).join('\n');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download=`SWK_${todayKey()}.csv`; a.click();
+  const msg=document.getElementById('exp-msg');
+  msg.textContent='✅ Export erfolgreich!';
+  setTimeout(()=>msg.textContent='',3000);
+}
+
+// ── PROFIL ────────────────────────────────────────────────────────────────────
+function openProfModal(){
+  document.getElementById('prof-name').value=profil.name||'';
+  document.getElementById('prof-ziel').value=profil.ziel||'';
+  document.getElementById('prof-start').value=profil.start||'';
+  document.getElementById('prof-modal').classList.add('visible');
+}
+function saveProfil(){
+  profil.name=document.getElementById('prof-name').value.trim()||'SWK';
+  profil.ziel=parseFloat(document.getElementById('prof-ziel').value)||110;
+  profil.start=document.getElementById('prof-start').value||'';
+  save(); updateHeader(); closeModal('prof-modal');
+}
+function closeModal(id){ document.getElementById(id).classList.remove('visible'); }
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+load();
+renderHeute();
+setLMPhase('diaet');
+updateCheckPhase();
+
+document.querySelectorAll('.modal-bg').forEach(m=>{
+  m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('visible');});
+});
+window.addEventListener('resize',()=>{
+  if(document.getElementById('tab-koerper').classList.contains('active')) drawChart();
+});
+</script>
+</body>
+</html>
